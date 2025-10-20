@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventory Demand Forecasting</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+  <!-- OPTIONAL: If user has data.js in same folder, it will be loaded here -->
+  <script src="data.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>📦 Inventory Demand Forecasting</h1>
+    <p class="sub">Load your dataset, explore it, train an LSTM/GRU, and forecast — all in your browser.</p>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <h2>1) Dataset</h2>
+      <div class="controls">
+        <button id="btnLoad">Load Dataset</button>
+        <input id="fileInput" type="file" accept=".csv,.json" />
+        <span class="hint">Tip: Works with <code>const dataset = [...]</code> or <code>window.INVENTORY_DATA</code> in <code>data.js</code>. Otherwise upload CSV/JSON.</span>
+      </div>
+
+      <div class="controls grid form-3">
+        <label>Date Column
+          <select id="dateCol"></select>
+        </label>
+        <label>Target Column
+          <select id="targetCol"></select>
+        </label>
+        <label>Aggregate by Date
+          <select id="aggFunc">
+            <option value="sum">Sum</option>
+            <option value="mean">Mean</option>
+            <option value="last">Last</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="controls grid form-3">
+        <label>Store
+          <select id="storeFilter"><option value="__ALL__">All</option></select>
+        </label>
+        <label>Product
+          <select id="productFilter"><option value="__ALL__">All</option></select>
+        </label>
+        <label>Region
+          <select id="regionFilter"><option value="__ALL__">All</option></select>
+        </label>
+      </div>
+
+      <div id="dataSummary" class="summary"></div>
+      <div id="tableMount"></div>
+    </section>
+
+    <section class="panel">
+      <h2>2) EDA</h2>
+      <div class="controls">
+        <button id="btnEDA">Show EDA</button>
+        <label>Rolling Window
+          <input id="rollingWindow" type="number" min="3" max="60" step="1" value="7"/>
+        </label>
+      </div>
+      <div class="grid charts-2">
+        <canvas id="tsChart"></canvas>
+        <canvas id="histChart"></canvas>
+      </div>
+      <div class="grid charts-2">
+        <canvas id="dowChart"></canvas>
+        <canvas id="acfChart"></canvas>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>3) Model</h2>
+      <div class="controls grid form-3">
+        <label>Model Type
+          <select id="modelType">
+            <option value="GRU">GRU</option>
+            <option value="LSTM">LSTM</option>
+          </select>
+        </label>
+        <label>Sequence Length
+          <input id="seqLen" type="number" min="5" max="180" step="1" value="28"/>
+        </label>
+        <label>Units
+          <input id="units" type="number" min="8" max="256" step="8" value="64"/>
+        </label>
+        <label>Dropout
+          <input id="dropout" type="number" min="0" max="0.8" step="0.05" value="0.2"/>
+        </label>
+        <label>Epochs
+          <input id="epochs" type="number" min="5" max="200" step="1" value="30"/>
+        </label>
+        <label>Batch Size
+          <input id="batch" type="number" min="8" max="512" step="8" value="64"/>
+        </label>
+      </div>
+      <div class="controls">
+        <button id="btnTrain" disabled>Train Model</button>
+        <span class="hint">Train/test split = 80/20 (chronological). Loss: MSE.</span>
+      </div>
+      <canvas id="lossChart"></canvas>
+    </section>
+
+    <section class="panel">
+      <h2>4) Prediction & Evaluation</h2>
+      <div class="controls">
+        <label>Forecast Horizon
+          <input id="horizon" type="number" min="1" max="180" step="1" value="14"/>
+        </label>
+        <button id="btnPredict" disabled>Forecast</button>
+        <button id="btnEvaluate" disabled>Evaluate (Test)</button>
+      </div>
+      <div class="grid charts-2">
+        <canvas id="predChart"></canvas>
+        <div class="metrics" id="metrics"></div>
+      </div>
+    </section>
+
+    <section class="panel log-panel">
+      <h2>Logs</h2>
+      <div id="log" class="log"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Made with TensorFlow.js + Chart.js • Works on GitHub Pages (static)</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
